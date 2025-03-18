@@ -40,7 +40,7 @@ FILE *fopen(const char *__restrict filename, const char *__restrict modes) {
 	static fopen_type libc_open = NULL;
 
 	/* check if the file is in our resources */
-    int i;
+	int i;
 	for (i = 0; resources[i].name != NULL; i++) {
 		if (strcmp(filename, resources[i].name) == 0) {
 
@@ -113,7 +113,6 @@ def main(config: str, output: str) -> None:
 
 if __name__ == "__main__":
 
-    # Set up argument parser
     parser = argparse.ArgumentParser(description="Generate resource file")
     parser.add_argument(
         "--config",
