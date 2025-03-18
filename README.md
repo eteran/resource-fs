@@ -77,3 +77,4 @@ filenames which match those of the resources get re-routed.
 # Future work
 
 * I may automatic compression support
+* I plan to make the generated code optionally utilize `#embed` once it's a mature feature.
