@@ -51,7 +51,7 @@ Finally, just do your FILE I/O like normal, except that you prefix the filename 
 
 int main(void) {
 
-	FILE *f = fopen("res:/alternate_name.md", "rb");
+	FILE *f = fopen("res:/my_resource.txt", "rb");
 	if (f) {
 		char buf[100];
 		size_t read = fread(buf, 1, sizeof(buf), f);
@@ -86,6 +86,13 @@ can override features of the standard library... But, it's not only useful for t
 override them in your own code too!
 
 So, we simply generate a source file which exports an `fopen` function matching the signature
-of the original and add our special sauce there. If we're trying to open a non-resource file,
+of the original and add our special sauce there.
+
+If we're trying to open a non-resource file,
 we just use `dlsym(RTLD_NEXT, "fopen");` to get the "next" implementation of `fopen`, AKA the
 original one so we can just call the original as needed.
+
+If we're trying to open a resource file that was found, linux offers a handy function called
+`fmemopen` which lets us wrap a `char *` with a `FILE*` object that can be used like normal.
+
+So, once we have `FILE*`, the experience is seamless.
