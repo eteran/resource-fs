@@ -76,6 +76,11 @@ def main(config: str, output: str) -> None:
 
     resources = config["resources"]
 
+    if "resources" not in config:
+        raise ValueError("No resources found in config")
+
+    options = config.get("options", {})
+
     for resource in resources:
         if "filename" not in resource:
             raise ValueError("Resource must have a name")
@@ -88,19 +93,22 @@ def main(config: str, output: str) -> None:
         resource_id = uuid.uuid4()
         resource["var_name"] = f"res_{resource_id.hex}"
 
-        with open(resource["filename"], "rb") as f:
-            data: bytes = f.read()
+        if not options.get("use_embed", False):
+            with open(resource["filename"], "rb") as f:
+                data: bytes = f.read()
 
-            data_str: str = ""
-            for chunk in chunk_list(data, 16):
-                data_str += (
-                    '    "'
-                    + "\\x"
-                    + "\\x".join(f"{byte:02x}" for byte in chunk)
-                    + '"\n'
-                )
+                data_str: str = ""
+                for chunk in chunk_list(data, 16):
+                    data_str += (
+                        '    "'
+                        + "\\x"
+                        + "\\x".join(f"{byte:02x}" for byte in chunk)
+                        + '"\n'
+                    )
 
-            resource["content"] = data_str.rstrip()
+                resource["content"] = data_str.rstrip()
+        else:
+            resource["content"] = f'{{\n#embed "{resource["filename"]}"\n}}'
 
     template = Template(c_template)
     generated_code = template.render(data={"resources": resources})

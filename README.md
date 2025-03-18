@@ -42,6 +42,8 @@ resources:
   - filename: ./res/another_resource.txt
     name: alternate_name.md
     description: This is an example resource file.
+options:
+    use_embed: false # i don't have a compiler that supports embed yet, but it *should* work
 ```
 
 Finally, just do your FILE I/O like normal, except that you prefix the filename with `res:/`.
@@ -77,7 +79,6 @@ filenames which match those of the resources get re-routed.
 # Future work
 
 * I may automatic compression support
-* I plan to make the generated code optionally utilize `#embed` once it's a mature feature.
 
 # How does it work?
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(example)
 
-set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD 23)
 
 add_executable(example
     main.c
