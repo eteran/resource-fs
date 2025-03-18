@@ -65,11 +65,14 @@ FILE *fopen(const char *__restrict filename, const char *__restrict modes) {
 
 
 def chunk_list(data: bytes, chunk_size: int) -> Generator[bytes, Any, Any]:
+    """Yield successive n-sized chunks from data."""
+
     for i in range(0, len(data), chunk_size):
         yield data[i : i + chunk_size]
 
 
 def main(config: str, output: str) -> None:
+    """Main function to generate the resource file."""
 
     with open(args.config, "r") as f:
         config = yaml.safe_load(f)
