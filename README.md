@@ -51,7 +51,7 @@ Finally, just do your FILE I/O like normal, except that you prefix the filename 
 
 int main(void) {
 
-	FILE *f = fopen("res:/my_resource.txt", "rb");
+	FILE *f = fopen("res:/example_resource.txt", "rb");
 	if (f) {
 		char buf[100];
 		size_t read = fread(buf, 1, sizeof(buf), f);
