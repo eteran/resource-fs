@@ -1,0 +1,5 @@
+resources:
+  - filename: ./res/example_resource.txt
+    description: This is an example resource file.
+
+

@@ -1,0 +1,19 @@
+
+#include <stdio.h>
+
+int main(void) {
+
+	FILE *f = fopen("res:/example_resource.txt", "rb");
+	if (f) {
+		char buf[100];
+		size_t read = fread(buf, 1, sizeof(buf), f);
+		if (read > 0) {
+			printf("Read %zu bytes: %.*s\n", read, (int)read, buf);
+		}
+		fclose(f);
+	} else {
+		printf("Failed to open file\n");
+	}
+
+	return 0;
+}
