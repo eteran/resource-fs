@@ -7,11 +7,13 @@ add_executable(example
 )
 
 # The following is what generates the resources.c file
+FILE(GLOB RESOURCES res/*)
+
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources.c
     COMMAND python3 scripts/resource_fs --output ${CMAKE_CURRENT_BINARY_DIR}/resources.c
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS res/example_resource.txt
+    DEPENDS ${RESOURCES}
     DEPENDS config.yaml
 )
 

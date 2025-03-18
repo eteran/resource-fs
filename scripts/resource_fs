@@ -21,7 +21,7 @@ typedef struct {
 } resource_t;
 
 {% for res in data.resources %}
-// {{ res.filename }}
+/* {{ res.filename }} */
 char {{ res.var_name }}[] =
 {{ res.content }};
 {% endfor %}
