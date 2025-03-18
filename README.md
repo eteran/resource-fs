@@ -78,3 +78,14 @@ filenames which match those of the resources get re-routed.
 
 * I may automatic compression support
 * I plan to make the generated code optionally utilize `#embed` once it's a mature feature.
+
+# How does it work?
+
+GCC and Clang's libc exports its symbols as weak symbols. This is so things like `LD_PRELOAD`
+can override features of the standard library... But, it's not only useful for that. You can
+override them in your own code too!
+
+So, we simply generate a source file which exports an `fopen` function matching the signature
+of the original and add our special sauce there. If we're trying to open a non-resource file,
+we just use `dlsym(RTLD_NEXT, "fopen");` to get the "next" implementation of `fopen`, AKA the
+original one so we can just call the original as needed.
