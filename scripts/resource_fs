@@ -63,6 +63,7 @@ FILE *fopen(const char *__restrict filename, const char *__restrict modes) {
 }
 """
 
+
 def chunk_list(data: bytes, chunk_size: int) -> Generator[bytes, Any, Any]:
     for i in range(0, len(data), chunk_size):
         yield data[i : i + chunk_size]
@@ -128,6 +129,3 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     main(args.config, args.output)
-
-
-
