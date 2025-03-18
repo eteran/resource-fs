@@ -40,7 +40,8 @@ FILE *fopen(const char *__restrict filename, const char *__restrict modes) {
 	static fopen_type libc_open = NULL;
 
 	/* check if the file is in our resources */
-	for (int i = 0; resources[i].name != NULL; i++) {
+    int i;
+	for (i = 0; resources[i].name != NULL; i++) {
 		if (strcmp(filename, resources[i].name) == 0) {
 
 			/* check if the mode is valid */

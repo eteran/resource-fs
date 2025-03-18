@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(example)
 
+set(CMAKE_C_STANDARD 90)
+
 add_executable(example
     main.c
     ${CMAKE_CURRENT_BINARY_DIR}/resources.c
