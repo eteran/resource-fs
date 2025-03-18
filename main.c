@@ -3,7 +3,7 @@
 
 int main(void) {
 
-	FILE *f = fopen("res:/example_resource.txt", "rb");
+	FILE *f = fopen("res:/alternate_name.md", "rb");
 	if (f) {
 		char buf[100];
 		size_t read = fread(buf, 1, sizeof(buf), f);
