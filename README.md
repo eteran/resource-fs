@@ -78,7 +78,7 @@ filenames which match those of the resources get re-routed.
 
 # Future work
 
-* I may automatic compression support
+* I may add automatic compression support at some point in the future.
 
 # How does it work?
 
