@@ -9,15 +9,19 @@ import yaml
 from jinja2 import Template
 
 c_template = """
+#define _GNU_SOURCE
 #define _POSIX_C_SOURCE 200809L
 #include <dlfcn.h>
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 typedef struct {
-	const char *name;
-	char *data;
-	size_t size;
+    const char *name;
+    char *data;
+    size_t size;
 } resource_t;
 
 {% for res in data.resources %}
@@ -28,38 +32,114 @@ char {{ res.var_name }}[] =
 
 const resource_t resources[] = {
 {%- for res in data.resources %}
-	{"{{ res.name }}", {{ res.var_name }}, sizeof({{ res.var_name }})},
+    {"{{ res.name }}", {{ res.var_name }}, sizeof({{ res.var_name }})},
 {%- endfor %}
-	{NULL, NULL, 0}
+    {NULL, NULL, 0}
 };
+
+#ifdef USE_OPEN_COOKIE
+typedef struct {
+    const char *data;
+    size_t size;
+    size_t offset;
+} resource_cookie_t;
+
+static ssize_t resource_read(void *cookie, char *buf, size_t size) {
+    resource_cookie_t *rc = (resource_cookie_t *)cookie;
+
+    if (rc->offset >= rc->size) {
+        return 0;
+    }
+
+    size_t remaining = rc->size - rc->offset;
+    size_t to_read   = size < remaining ? size : remaining;
+
+    memcpy(buf, rc->data + rc->offset, to_read);
+    rc->offset += to_read;
+
+    return to_read;
+}
+
+static int resource_seek(void *cookie, off64_t *offset, int whence) {
+    resource_cookie_t *rc = (resource_cookie_t *)cookie;
+    off64_t new_offset;
+
+    switch (whence) {
+    case SEEK_SET:
+        new_offset = *offset;
+        break;
+    case SEEK_CUR:
+        new_offset = rc->offset + *offset;
+        break;
+    case SEEK_END:
+        new_offset = rc->size + *offset;
+        break;
+    default:
+        return -1;
+    }
+
+    if (new_offset < 0 || (size_t)new_offset > rc->size) {
+        return -1;
+    }
+
+    rc->offset = new_offset;
+    *offset    = new_offset;
+    return 0;
+}
+
+static int resource_close(void *cookie) {
+    free(cookie);
+    return 0;
+}
+#endif
 
 typedef FILE *(*fopen_type)(const char *__restrict filename, const char *__restrict modes);
 
 FILE *fopen(const char *__restrict filename, const char *__restrict modes) {
 
-	static fopen_type libc_open = NULL;
+    static fopen_type libc_open = NULL;
 
-	/* check if the file is in our resources */
-	int i;
-	for (i = 0; resources[i].name != NULL; i++) {
-		if (strcmp(filename, resources[i].name) == 0) {
+    /* check if the file is in our resources */
+    int i;
+    for (i = 0; resources[i].name != NULL; i++) {
+        if (strcmp(filename, resources[i].name) == 0) {
 
-			/* check if the mode is valid */
-			if (strcmp(modes, "r") != 0 && strcmp(modes, "rb") != 0) {
-				return NULL;
-			}
+            /* check if the mode is valid */
+            if (strcmp(modes, "r") != 0 && strcmp(modes, "rb") != 0) {
+                return NULL;
+            }
 
-			/* return a FILE pointer to our resource */
-			return fmemopen(resources[i].data, resources[i].size, modes);
-		}
-	}
+#ifdef USE_OPEN_COOKIE
+            resource_cookie_t *cookie = malloc(sizeof(resource_cookie_t));
+            if (!cookie) {
+                errno = ENOMEM;
+                return NULL;
+            }
 
-	/* get reference to original (libc provided) fopen */
-	if (!libc_open) {
-		*(void **)(&libc_open) = dlsym(RTLD_NEXT, "fopen");
-	}
+            cookie->data   = resources[i].data;
+            cookie->size   = resources[i].size;
+            cookie->offset = 0;
 
-	return libc_open(filename, modes);
+            cookie_io_functions_t io_funcs = {
+                .read  = resource_read,
+                .write = NULL,
+                .seek  = resource_seek,
+                .close = resource_close};
+
+            return fopencookie(cookie, modes, io_funcs);
+#else
+            /* return a FILE pointer to our resource */
+            return fmemopen(resources[i].data, resources[i].size, modes);
+#endif
+        }
+    }
+
+    /* get reference to original (libc provided) fopen */
+    if (!libc_open) {
+        *(void **)(&libc_open) = dlsym(RTLD_NEXT, "fopen");
+    }
+
+    return libc_open(filename, modes);
 }
 """
 
