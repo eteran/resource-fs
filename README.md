@@ -88,7 +88,8 @@ of the original and add our special sauce there.
 If we're trying to open a non-resource file, we just use `dlsym(RTLD_NEXT, "fopen");`
 to get the "next" implementation of `fopen`, AKA the original one so we can just call the original as needed.
 
-If we're trying to open a resource file that was found, linux offers a handy function called
+If we're trying to open a resource file that was found, Linux offers a handy function called
 `fmemopen` which lets us wrap a `char *` with a `FILE*` object that can be used like normal.
+(For other systems, it can also emit code which uses `fopencookie`).
 
 So, once we have `FILE*`, the experience is seamless.
