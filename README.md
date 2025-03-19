@@ -25,10 +25,6 @@ add_custom_command(
     DEPENDS res/another_resource.txt
     DEPENDS config.yaml
 )
-
-add_custom_target(generate_file ALL
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/resources.c
-)
 ```
 
 Next, create a config YAML file, which looks like this:

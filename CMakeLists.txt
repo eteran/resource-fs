@@ -18,7 +18,3 @@ add_custom_command(
     DEPENDS ${RESOURCES}
     DEPENDS config.yaml
 )
-
-add_custom_target(generate_file ALL
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/resources.c
-)
